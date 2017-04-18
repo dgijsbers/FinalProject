@@ -1,0 +1,2 @@
+# One function I would use in my code would be a function under the class Tweet that would get the tweets necessary. Similar to the function get_user_tweets, but one that would get one star actor in each of the 3 movies that I get from OMDB. 
+def 
