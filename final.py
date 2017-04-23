@@ -36,16 +36,16 @@ except:
 	CACHE_DICTION = {}
 
 # I want to set up a function that will cache data from twitter into my cache file. I will define this as get_tweets because I want it to save tweets
-def get_tweets(username):
+def get_tweets(searched):
 
 
-	unique_identifier = "twitter_{}".format(username) 
+	unique_identifier = "twitter_{}".format(searched) 
 	if unique_identifier in CACHE_DICTION:
-		print('using cached data for info about', username)
+		print('using cached data for info about', searched)
 		twitter_results = CACHE_DICTION[unique_identifier] 
 	else:
-		print('getting data from internet about', username)
-		twitter_results = api.user_timeline(username) 
+		print('getting data from internet about', searched)
+		twitter_results = api.home_timeline(searched) 
 #
 		CACHE_DICTION[unique_identifier] = twitter_results 
 		f = open(CACHE_FNAME,'w') 
@@ -54,19 +54,21 @@ def get_tweets(username):
 
 		tweet_texts = [] # collect 'em all!
 		for tweet in twitter_results:
-			tweet_texts.append(tweet["text"])
+			results = api.search(q="movie")
+
+			tweet_texts.append(results["text"])
 		return tweet_texts[:3]
 
 
 #new_tweets = get_tweets("demerygijsbers")
 #for t in new_tweets:
 #	print("TWEET TEXT:", t)
-
-	public_tweets = api.home_timeline()
-	results = api.search(q = "username")
-	list_tweets = results["statuses"][:20]
-	print(list_tweets)
-	print("***************")
+tweet_texts = []
+public_tweets = api.home_timeline()
+results = api.search(q = "movie")
+list_tweets = results["statuses"][:20]
+print(list_tweets)
+print("***************")
 
 #I want to set up a request to get information from the OMDb and save the information I get from that into a dictionary which will then also be cached into the cache file 
 
@@ -77,7 +79,7 @@ conn = sqlite3.connect('final_project.db')
 cur = conn.cursor()
 
 #In addition to the Class Movie, I will also be creating the recommended Class Tweet to handle the Twitter data.
-class Movie(movie_dict):
+class Movie(object):
 	def __init__(self, title, director, rating, actor, languages):
 		self.title = title
 		self.director = director
