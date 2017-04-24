@@ -36,39 +36,6 @@ except:
 	CACHE_DICTION = {}
 
 # I want to set up a function that will cache data from twitter into my cache file. I will define this as get_tweets because I want it to save tweets
-def get_tweets(searched):
-
-
-	unique_identifier = "twitter_{}".format(searched) 
-	if unique_identifier in CACHE_DICTION:
-		print('using cached data for info about', searched)
-		twitter_results = CACHE_DICTION[unique_identifier] 
-	else:
-		print('getting data from internet about', searched)
-		twitter_results = api.home_timeline(searched) 
-#
-		CACHE_DICTION[unique_identifier] = twitter_results 
-		f = open(CACHE_FNAME,'w') 
-		f.write(json.dumps(CACHE_DICTION)) 
-		f.close()
-
-		tweet_texts = [] # collect 'em all!
-		for tweet in twitter_results:
-			results = api.search(q="movie")
-
-			tweet_texts.append(results["text"])
-		return tweet_texts[:3]
-
-
-#new_tweets = get_tweets("demerygijsbers")
-#for t in new_tweets:
-#	print("TWEET TEXT:", t)
-tweet_texts = []
-public_tweets = api.home_timeline()
-results = api.search(q = "movie")
-list_tweets = results["statuses"][:20]
-print(list_tweets)
-print("***************")
 
 #I want to set up a request to get information from the OMDb and save the information I get from that into a dictionary which will then also be cached into the cache file 
 
@@ -109,11 +76,21 @@ class Movie(object):
 			cache_file.close()
 		print(movie_results)
 
+	def best_actor(self):
+		return self.actor()[0]
 
+	
 
-##class Tweet(tweet_dict):
+class Tweet(object):
 #The class Tweet will take the tweet text, the tweet ID, the username of the person who posted the tweet, the name of the movie that was searched, the number of favorites the tweet received, and lastly, the number of retweets the tweet received as well. All of these things will ultimately be uploaded to the database into the Tweets table as well. 
-	##def __init__(self, text, id, username, movie, num_faves, retweet_count):
+	def __init__(self, tweet_info):
+		for tweet in tweet_info:
+		self.text = tweet["text"]
+		self.id = tweet["id"]
+		self.username["user"]["screen_name"]
+		#self.movie = tweet
+		self.num_faves = tweet["statuses"][0]["favorite_count"]
+		self.retweet_count = tweet["status"][0]["retweet_count"]
 
 
 #What will 1 instance of this class represent?
@@ -129,8 +106,41 @@ class Movie(object):
 
 #Explain 2 methods the class will have that are not the class constructor (__init__ method) by answering the following questions for each. 
 #ONE METHOD:
+	tweet_texts = []
+	public_tweets = api.home_timeline()
+	results = api.search(q = search)
+	tweet_texts = results["statuses"][:3]
+	print(tweet_texts)
+	print("***************")
 
-	##def tweet_deet(self, text, id, username, num_faves, retweet_count): #which will hold the movie information, including the name of the movie and the actors in it. This is important because this is ultimately the information that is most important to get into the database and vital to keep track of 
+	def tweet_deet(searched):
+		search_term = "twitter_"+str(searched)
+		list_tweets = []
+
+		if search_term in CACHE_DICTION:
+			print('using cached data for info about', searched)
+			twitter_results = CACHE_DICTION[searched] 
+		else:
+			print('getting data from internet about', searched)
+			twitter_results = api.home_timeline(searched) 
+#
+			CACHE_DICTION[searched] = twitter_results 
+			f = open(CACHE_FNAME,'w') 
+			f.write(json.dumps(CACHE_DICTION)) 
+			f.close()
+
+		#tweet_texts = [] # collect 'em all!
+		#for tweet in twitter_results:
+		#	results = api.search(q="movie")
+
+		#	tweet_texts.append(results["text"])
+		#return tweet_texts[:3]
+	#print(tweet_texts[:3])
+
+
+#new_tweets = get_tweets("demerygijsbers")
+#for t in new_tweets:
+#	print("TWEET TEXT:", t)
 
 #- What will the method do?
 #this method will compile a list of details about the tweet
