@@ -36,7 +36,14 @@ except:
 	CACHE_DICTION = {}
 
 # I want to set up a function that will cache data from twitter into my cache file. I will define this as get_tweets because I want it to save tweets
-
+tweet_texts = []
+public_tweets = api.home_timeline()
+results = api.search(q = input("Enter the name of a movie please"))
+tweet_texts = results['statuses'][:10]
+for tweet in tweet_texts:
+	text = tweet['text']
+	print(text)
+	print("***************")
 #I want to set up a request to get information from the OMDb and save the information I get from that into a dictionary which will then also be cached into the cache file 
 
 
@@ -56,73 +63,76 @@ class Movie(object):
 
 	def __str__(self):
 		return "{} got a {} rating and the top actor is {}".format(self.title, self.rating, self.actor)
+		print(str)
 
-	def get_movie_info(self, title, director, actor):
-		base_url = "http://www.omdbapi.com/?"
-		params_diction = {}
-		params_diction["s"] = "Title"
-		r = requests.get(base_url, params = params_diction)
-		r_dict =r.text
+def get_movie_info(title):
+	base_url = "http://www.omdbapi.com/?t"
+	params_diction = {}
+	params_diction["s"] = (input("Type the title of the movie one more time"))
+	r = requests.get(base_url, params = params_diction)
+	r_dict =r.text
+	print(r_dict)
+	for item in r_dict:
+		return item["search"]
+	
+	print("^&^&^&^&^&^&^&^&^&^&")
+	for deets in r_dict:
+		return deets
 
-		if movie_title in CACHE_DICTION:
-			movie_results = CACHE_DICTION[r_dict]
-		else:
-			movie_results = requests.get(r_dict)
-			CACHE_DICTION[r_dict] = movie_results.text
-			movie_results = movie_results.text
+	if title in CACHE_DICTION:
+		movie_results = CACHE_DICTION[r_dict]
+	else:
+		movie_results = requests.get(r_dict)
+		CACHE_DICTION[r_dict] = movie_results.text
+		movie_results = movie_results.text
 
-			cache_file = open(CACHE_DICTION, 'w')
-			cache_file.write(json.dumps(CACHE_DICTION))
-			cache_file.close()
-		print(movie_results)
+		cache_file = open(CACHE_DICTION, 'w')
+		cache_file.write(json.dumps(CACHE_DICTION))
+		cache_file.close()
+	print(movie_results)
 
 	def best_actor(self):
 		return self.actor()[0]
-
-	
 
 class Tweet(object):
 #The class Tweet will take the tweet text, the tweet ID, the username of the person who posted the tweet, the name of the movie that was searched, the number of favorites the tweet received, and lastly, the number of retweets the tweet received as well. All of these things will ultimately be uploaded to the database into the Tweets table as well. 
 	def __init__(self, tweet_info):
 		for tweet in tweet_info:
-		self.text = tweet["text"]
-		self.id = tweet["id"]
-		self.username["user"]["screen_name"]
-		#self.movie = tweet
-		self.num_faves = tweet["statuses"][0]["favorite_count"]
-		self.retweet_count = tweet["status"][0]["retweet_count"]
-
-
-#What will 1 instance of this class represent?
-#1 instance of this class will represent one tweet containing the information searched for. 
-
-#What are 3 instance variables this class will have? What will they be called, and what information will they hold? Why are they important?
-
+			self.text = tweet["text"]
+			self.id = tweet["id"]
+			self.username["user"]["screen_name"]
+			#self.movie = tweet
+			self.num_faves = tweet["statuses"][0]["favorite_count"]
+			self.retweet_count = tweet["status"][0]["retweet_count"]
+#	def tweet_list(self):
+#		tweet_texts = []
+#		public_tweets = api.home_timeline()
+#		results = api.search(q = "movie")
+#		tweet_texts = results["statuses"][:20]
+#		print(tweet_texts)
+#		print("***************")
 #3 instance variables this class will have are:
 		#self.tweet #which will be a list that will hold all the information of the tweet, which is important as it is holding information that is vital to organizing our information. 
 	 	#self.movie_name #which will be a list that holds the information about the movie including movie name and actors. This will be important to keep this as its own list apart from the tweet information so we can cross it with the information from the Class Movie. 
 		#self.popularity #which will be an accumulation method, and will accumulate a point of popularity with every positive word (out of a list of 10 or so) about the movie in the tweet
+	def popularity(self, rating):
+		accum = 0
 
 
 #Explain 2 methods the class will have that are not the class constructor (__init__ method) by answering the following questions for each. 
 #ONE METHOD:
-	tweet_texts = []
-	public_tweets = api.home_timeline()
-	results = api.search(q = search)
-	tweet_texts = results["statuses"][:3]
-	print(tweet_texts)
-	print("***************")
+
 
 	def tweet_deet(searched):
 		search_term = "twitter_"+str(searched)
-		list_tweets = []
+		#list_tweets = []
 
 		if search_term in CACHE_DICTION:
 			print('using cached data for info about', searched)
 			twitter_results = CACHE_DICTION[searched] 
 		else:
 			print('getting data from internet about', searched)
-			twitter_results = api.home_timeline(searched) 
+			twitter_results = api.home_timeline("movie") 
 #
 			CACHE_DICTION[searched] = twitter_results 
 			f = open(CACHE_FNAME,'w') 
@@ -182,7 +192,51 @@ class Tweet(object):
 #- User ID (primary key), screen name, number of favorites (ever)
 #Movies:
 #- ID (primary key), title, director, number of languages, IMDB rating, top-billed
+movie_tweets = get_movie_info(input("Type the name of the same movie"))
+print(movie_tweets)
+print ("()()()()()()()())()()")
 
+conn = sqlite3.connect('final_project.db')
+cur = conn.cursor()
+
+# List, in English, 2 queries you'll want to make from your database. At least one should be a JOIN. You can always change these later, but start with  ideas you're interested in and lessen the work on yourself later on! 
+#(e.g. from class examples, maybe "I want to make a query that accesses the numbers of times each user has favorited tweets, and the number of times tweets that user posted have been favorited -- so I'll be joining the Tweets table and the Users table")
+#I want to see how many favorites a user gets on a tweet mentioning one of the top actors, so I would join the Tweets table and the Movie table. 
+#I also want to see what the screen name of a user is that mentions a movie where there is a specific director, thus using join to combine the User and Movie table, and using WHERE to find a tweet with a specific director. 
+cur.execute("DROP TABLE IF EXISTS Tweets")
+table_one = "CREATE TABLE IF NOT EXISTS "
+table_one += 'Tweets (tweet_id TEXT PRIMARY KEY, '
+table_one += 'user_id INTEGER, num_faves INTEGER, retweet_count INTEGER)' #Need to add one for the movie title searched 
+cur.execute(table_one)
+
+cur.execute("DROP TABLE IF EXISTS Users")
+table_two = "CREATE TABLE IF NOT EXISTS "
+table_two += 'Users (user_id INTEGER PRIMARY KEY, '
+table_two += 'screen_name TEXT, total_faves INTEGER)'
+
+cur.execute(table_two)
+
+cur.execute("DROP TABLE IF EXISTS Movies")
+table_three = "CREATE TABLE IF NOT EXISTS "
+table_three += 'Movies (id INTEGER PRIMARY KEY, '
+table_three += 'title TEXT, director TEXT, num_lang INTEGER, rating INTEGER, rich_actor TEXT)'
+
+cur.execute(table_three)
+
+#Below, I will add the information necessary to fill the columns in my table. I will access the tweet information from the tweets about the movies
+# I will access the movie information from the OMDb
+statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?)' #Need to add one for the searched movie title
+new_list = []
+for tweet in tweet_texts:
+	new_list.append((tweet['id_str'], tweet['user']['id'], tweet['favorite_count'], tweet['retweet_count']))
+for tup in new_list:
+	cur.execute(statement, tup)
+cur.execute('INSERT INTO Users VALUES (?, ?, ?)', (tweet['user']['id'], tweet['user']['screen_name'], tweet['user']['favourites_count']))	
+for info in movie_tweets:
+	cur.execute('INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?)', info['imdbID'], info['Title'], info['Director'], info['language'], info['imdbRating'], info['actors'][0])
+
+
+conn.commit()
 # List, in English, 2 queries you'll want to make from your database. At least one should be a JOIN. You can always change these later, but start with  ideas you're interested in and lessen the work on yourself later on! 
 #(e.g. from class examples, maybe "I want to make a query that accesses the numbers of times each user has favorited tweets, and the number of times tweets that user posted have been favorited -- so I'll be joining the Tweets table and the Users table")
 #I want to see how many favorites a user gets on a tweet mentioning one of the top actors, so I would join the Tweets table and the Movie table. 
