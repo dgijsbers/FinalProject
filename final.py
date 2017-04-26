@@ -124,10 +124,9 @@ class Tweet(object):
 			f.write(json.dumps(CACHE_DICTION)) 
 			f.close()
 
-movie_info = (get_movie_info(input("Type the name of the same movie"))
-
+movie_info = get_movie_info(input("Type the name of the same movie"))
 print("PRINTING MOVIE_INFO", movie_info)
-print ("()()()()()()()())()()")
+print("()()()()()()()())()()")
 
 conn = sqlite3.connect('final_project.db')
 cur = conn.cursor()
