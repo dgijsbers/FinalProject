@@ -1,10 +1,3 @@
-#THINGS I GOTTA DO HERE
-#Upload stuff to databases 
-#methods to get the stuff
-#methods to find fun stuff about it 
-#methods to match that ish with twitter info
-#JOIN INNER to match like users with rating info
-#documentation 
 
 import json
 import unittest
@@ -61,23 +54,22 @@ class Movie(object):
 		self.actor = actor
 		self.languages = languages
 
-	def __str__(self):
-		return "{} got a {} rating and the top actor is {}".format(self.title, self.rating, self.actor)
-		print(str)
+	#def __str__(self, title, rating, actor):
+	#	return "{} got a {} rating and the top actor is {}".format(self.title, self.rating, self.actor)
+	#print("The string is", __str__(input("Type the movie name!!")))
 
-def get_movie_info(title):
-	base_url = "http://www.omdbapi.com/?t"
+
+def get_movie_info(self):
+	base_url = "http://www.omdbapi.com/?"
 	params_diction = {}
 	params_diction["s"] = (input("Type the title of the movie one more time"))
 	r = requests.get(base_url, params = params_diction)
 	r_dict =r.text
-	print(r_dict)
-	for item in r_dict:
-		return item["search"]
-	
+	print(type(r_dict))
+	return r_dict
+
 	print("^&^&^&^&^&^&^&^&^&^&")
-	for deets in r_dict:
-		return deets
+
 
 	if title in CACHE_DICTION:
 		movie_results = CACHE_DICTION[r_dict]
@@ -89,13 +81,12 @@ def get_movie_info(title):
 		cache_file = open(CACHE_DICTION, 'w')
 		cache_file.write(json.dumps(CACHE_DICTION))
 		cache_file.close()
-	print(movie_results)
+	print("Printing movie results", movie_results)
 
 	def best_actor(self):
 		return self.actor()[0]
 
 class Tweet(object):
-#The class Tweet will take the tweet text, the tweet ID, the username of the person who posted the tweet, the name of the movie that was searched, the number of favorites the tweet received, and lastly, the number of retweets the tweet received as well. All of these things will ultimately be uploaded to the database into the Tweets table as well. 
 	def __init__(self, tweet_info):
 		for tweet in tweet_info:
 			self.text = tweet["text"]
@@ -115,12 +106,6 @@ class Tweet(object):
 		#self.tweet #which will be a list that will hold all the information of the tweet, which is important as it is holding information that is vital to organizing our information. 
 	 	#self.movie_name #which will be a list that holds the information about the movie including movie name and actors. This will be important to keep this as its own list apart from the tweet information so we can cross it with the information from the Class Movie. 
 		#self.popularity #which will be an accumulation method, and will accumulate a point of popularity with every positive word (out of a list of 10 or so) about the movie in the tweet
-	def popularity(self, rating):
-		accum = 0
-
-
-#Explain 2 methods the class will have that are not the class constructor (__init__ method) by answering the following questions for each. 
-#ONE METHOD:
 
 
 	def tweet_deet(searched):
@@ -139,61 +124,9 @@ class Tweet(object):
 			f.write(json.dumps(CACHE_DICTION)) 
 			f.close()
 
-		#tweet_texts = [] # collect 'em all!
-		#for tweet in twitter_results:
-		#	results = api.search(q="movie")
+movie_info = (get_movie_info(input("Type the name of the same movie"))
 
-		#	tweet_texts.append(results["text"])
-		#return tweet_texts[:3]
-	#print(tweet_texts[:3])
-
-
-#new_tweets = get_tweets("demerygijsbers")
-#for t in new_tweets:
-#	print("TWEET TEXT:", t)
-
-#- What will the method do?
-#this method will compile a list of details about the tweet
-
-#- Will it take any additional input? 
-#self, text, id, username, num_faves and retweet_count
-
-#- Will it return anything? Should it change anything about the instance/an instance variable? 
-#this will return the list and will not change the instance variables. 
-
-#- Why is it useful for this class definition, in this program?
-#This is useful for the class definition because it is organizing all of the tweet information right away and will make it easily accessible
-
-
-#ANOTHER METHOD:
-#- What will the name of the method be?
-	##def movie_info(self, movie):
-
-#- What will the method do?
-#compile a short list of the information about the movie that is in the tweet
-
-#- Will it take any additional input? 
-#self and movie
-
-#- Will it return anything? Should it change anything about the instance/an instance variable? 
-#This will return the list of keywords found in the tweet like an actor name and/or movie title and/or director.
-
-#- Why is it useful for this class definition, in this program?
-#In an attempt to gather all the information I can about the movies from a set of tweets, this list will help keep it all in order and make it easily accessible. 
-
-#What will the tables in your database be?
-#The tables in my database will be the required: Tweets, Users, and Movies. 
-
-
-#What fields will each database table have? Which field of them is the primary key? You should list the fields for each database table here, e.g.
-#Tweets:
-#- text, tweet ID (primary key), user, movie name, number of favorites, and number of retweets
-#Users:
-#- User ID (primary key), screen name, number of favorites (ever)
-#Movies:
-#- ID (primary key), title, director, number of languages, IMDB rating, top-billed
-movie_tweets = get_movie_info(input("Type the name of the same movie"))
-print(movie_tweets)
+print("PRINTING MOVIE_INFO", movie_info)
 print ("()()()()()()()())()()")
 
 conn = sqlite3.connect('final_project.db')
@@ -232,8 +165,12 @@ for tweet in tweet_texts:
 for tup in new_list:
 	cur.execute(statement, tup)
 cur.execute('INSERT INTO Users VALUES (?, ?, ?)', (tweet['user']['id'], tweet['user']['screen_name'], tweet['user']['favourites_count']))	
-for info in movie_tweets:
-	cur.execute('INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?)', info['imdbID'], info['Title'], info['Director'], info['language'], info['imdbRating'], info['actors'][0])
+
+#conn.commit()
+for deets in movie_info[0]:
+
+	for info in deets:
+		cur.execute('INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?)', info['imdbID'], info['Title'], info['Director'], info['language'], info['imdbRating'], info["actors"][0])
 
 
 conn.commit()
